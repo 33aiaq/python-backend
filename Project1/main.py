@@ -1,26 +1,37 @@
-from models import User
-from products import Book, Electronics
+from finance import Ledger, Income, Expense
 
-# Create sample products
-book1 = Book("Python 101", 30, 10, "John Doe")
-book2 = Book("Data Science Handbook", 40, 5, "Jane Smith")
-laptop = Electronics("Laptop", 1200, 3, "Dell")
-phone = Electronics("Smartphone", 800, 7, "Samsung")
+ledger = Ledger()
 
-# Create a user
-user = User("Amer")
+def menu():
+    print("\n--- Personal Finance Tracker ---")
+    print("1. Add Income")
+    print("2. Add Expense")
+    print("3. View Transactions")
+    print("4. View Summary")
+    print("5. Exit")
 
-# Add products to cart
-user.cart.add_product(book1, 2)
-user.cart.add_product(laptop, 1)
-user.cart.add_product(phone, 1)
-
-# View cart
-print("Shopping Cart:")
-user.cart.view_cart()
-
-# Total price
-print("Total:", user.cart.total())
-
-# Checkout
-user.checkout()
+while True:
+    menu()
+    choice = input("Choose an option: ")
+    try:
+        if choice == "1":
+            amount = float(input("Enter income amount: "))
+            category = input("Enter category: ")
+            ledger.add_transaction(Income(amount, category))
+            print("Income added successfully.")
+        elif choice == "2":
+            amount = float(input("Enter expense amount: "))
+            category = input("Enter category: ")
+            ledger.add_transaction(Expense(-amount, category))  # Negative for expense
+            print("Expense added successfully.")
+        elif choice == "3":
+            ledger.view_transactions()
+        elif choice == "4":
+            ledger.summary()
+        elif choice == "5":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Try again.")
+    except ValueError:
+        print("Invalid input. Amount must be a number.")
