@@ -1,23 +1,48 @@
-from fastapi import FastAPI, Query
-from typing import List, Optional
+from fastapi import FastAPI, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from models import Base, engine, SessionLocal, User, Post
 
 app = FastAPI()
 
-# Sample data
-posts_data = [
-    {"id": 1, "user_id": 1, "title": "Post 1", "status": "published"},
-    {"id": 2, "user_id": 1, "title": "Post 2", "status": "draft"},
-    {"id": 3, "user_id": 2, "title": "Post 3", "status": "published"},
-    {"id": 4, "user_id": 1, "title": "Post 4", "status": "published"},
-]
+# Create tables
+Base.metadata.create_all(bind=engine)
 
+# Dependency to get DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Create a new user
+@app.post("/users/")
+def create_user(name: str, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.name == name).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+    new_user = User(name=name)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+# Create a new post
+@app.post("/posts/")
+def create_post(user_id: int, title: str, status: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    new_post = Post(user_id=user_id, title=title, status=status)
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+    return new_post
+
+# Get posts by user, optional status filter
 @app.get("/users/{user_id}/posts")
-def get_user_posts(user_id: int, status: Optional[str] = Query(None, description="Filter by status")):
-    # Filter posts by user_id
-    user_posts = [post for post in posts_data if post["user_id"] == user_id]
-    
-    # If status query parameter is provided, filter by status
+def get_user_posts(user_id: int, status: str = Query(None), db: Session = Depends(get_db)):
+    posts = db.query(Post).filter(Post.user_id == user_id)
     if status:
-        user_posts = [post for post in user_posts if post["status"] == status]
-    
-    return {"user_id": user_id, "posts": user_posts}
+        posts = posts.filter(Post.status == status)
+    return {"user_id": user_id, "posts": [ {"id": p.id, "title": p.title, "status": p.status} for p in posts ]}
