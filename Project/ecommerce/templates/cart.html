@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Your Cart</h1>
+
+    {% if cart %}
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+        {% for product, qty in cart %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ qty }}</td>
+            <td>${{ product.price }}</td>
+            <td>${{ product.price * qty }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p style="text-align:center; font-size:1.2rem;">Grand Total: ${{ total }}</p>
+    <div style="text-align:center;">
+        <a href="/checkout"><button>Checkout</button></a>
+    </div>
+
+    {% else %}
+    <p class="checkout-message">Your cart is empty.</p>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:20px;">
+        <a href="/">Back to Products</a>
+    </div>
+</body>
+</html>

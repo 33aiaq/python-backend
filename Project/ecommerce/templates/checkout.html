@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Thank you, {{ user.name }}!</h1>
+
+    {% if total %}
+    <p class="checkout-message">Your checkout is complete. Total Paid: ${{ total }}</p>
+    {% else %}
+    <p class="checkout-message">Your cart was empty.</p>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:20px;">
+        <a href="/"><button>Back to Products</button></a>
+    </div>
+</body>
+</html>

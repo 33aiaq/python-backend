@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Products</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Our Products</h1>
+
+    {% if error %}
+    <p style="color:red; text-align:center; font-weight:bold;">{{ error }}</p>
+    {% endif %}
+
+    <div class="products">
+    {% for product in products %}
+        <div class="product-card">
+            <h2>{{ product.name }}</h2>
+            <p>Price: ${{ product.price }}</p>
+            <p>Stock: {{ product._stock }}</p>
+            {% if product.__class__.__name__ == 'Book' %}
+                <p>Author: {{ product.author }}</p>
+            {% elif product.__class__.__name__ == 'Electronics' %}
+                <p>Brand: {{ product.brand }}</p>
+            {% endif %}
+            <form action="/add_to_cart" method="POST">
+                <input type="number" name="quantity" value="1" min="1">
+                <input type="hidden" name="product_name" value="{{ product.name }}">
+                <button type="submit">Add to Cart</button>
+            </form>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+        <a href="/cart">View Cart</a>
+    </div>
+</body>
+</html>
