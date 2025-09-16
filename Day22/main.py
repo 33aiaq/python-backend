@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, validator
 
@@ -6,8 +7,8 @@ app = FastAPI()
 class Product(BaseModel):
     name: str
     price: float
-    category: str
-
+    category: Optional[str] = None
+    
     @validator('price')
     def price_must_be_positive(cls, value):
         if value <= 0:
